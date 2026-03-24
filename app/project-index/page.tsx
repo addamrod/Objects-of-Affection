@@ -18,7 +18,7 @@ export default async function IndexPage() {
       <h1 className="text-2xl font-bold mb-8">Index</h1>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {items.map((item: any) => (
-          <Link key={item._id} href={`/index/${item.slug.current}`}>
+          <Link key={item._id} href={`/project-index/${item.slug.current}`}>
             <div className="relative aspect-square overflow-hidden bg-gray-100 cursor-pointer hover:opacity-80 transition-opacity">
               {item.image && (
                 <Image

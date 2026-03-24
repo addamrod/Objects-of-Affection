@@ -22,7 +22,7 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
 
   return (
     <main className="fixed inset-0 bg-black flex items-center justify-center">
-      <Link href="/project-index" className="absolute top-6 left-6 text-white text-sm z-10">
+      <Link href="/" className="absolute top-6 left-6 text-white text-sm z-10">
         ← Index
       </Link>
       {item.image && (
@@ -34,13 +34,13 @@ export default async function ContentPage({ params }: { params: Promise<{ slug: 
         />
       )}
       <Link
-        href={`/index/${prev.slug.current}`}
+        href={`/${prev.slug.current}`}
         className="absolute left-6 top-1/2 -translate-y-1/2 text-white text-3xl z-10"
       >
         ‹
       </Link>
       <Link
-        href={`/index/${next.slug.current}`}
+        href={`/${next.slug.current}`}
         className="absolute right-6 top-1/2 -translate-y-1/2 text-white text-3xl z-10"
       >
         ›

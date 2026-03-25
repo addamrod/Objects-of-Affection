@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
-import Nav from './components/nav'
-import PageTransition from './components/page-transition'
+import SiteShell from './components/site-shell'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -16,8 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
-        <Nav />
-        <PageTransition>{children}</PageTransition>
+        <SiteShell>{children}</SiteShell>
       </body>
     </html>
   )

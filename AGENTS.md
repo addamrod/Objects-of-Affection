@@ -1,3 +1,7 @@
+# Git workflow
+
+Always work directly on the `main` branch. Never create worktrees, feature branches, or new branches of any kind. Make all changes directly to the files in the current working directory.
+
 <!-- BEGIN:nextjs-agent-rules -->
 # This is NOT the Next.js you know
 

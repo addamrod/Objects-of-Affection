@@ -21,7 +21,4 @@ open -a "Google Chrome" \
     "https://vercel.com" \
     "https://github.com/addamrod/Objects-of-Affection"
 
-echo "Opening Figma..."
-open -a "Figma"
-
 echo "Session started."

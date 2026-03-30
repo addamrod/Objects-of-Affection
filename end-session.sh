@@ -34,15 +34,20 @@ echo ""
 echo "Killing dev server..."
 lsof -ti tcp:3000 | xargs kill -9 2>/dev/null && echo "Dev server stopped." || echo "No dev server running."
 
-echo "Closing Chrome localhost tabs..."
+echo "Closing Chrome session tabs..."
 osascript <<'EOF'
 tell application "Google Chrome"
+    set sessionURLs to {"http://localhost", "https://objects-of-affection.vercel.app", "https://vercel.com", "https://github.com/addamrod/Objects-of-Affection"}
     repeat with w in windows
         set tabList to tabs of w
         repeat with t in tabList
-            if URL of t starts with "http://localhost" then
-                delete t
-            end if
+            set tabURL to URL of t
+            repeat with sessionURL in sessionURLs
+                if tabURL starts with sessionURL then
+                    delete t
+                    exit repeat
+                end if
+            end repeat
         end repeat
     end repeat
 end tell

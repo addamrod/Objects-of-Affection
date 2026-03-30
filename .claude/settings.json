@@ -1,4 +1,10 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(bash /Users/addamrodriguez/Desktop/Objects-of-Affection/start-session.sh)",
+      "Bash(bash /Users/addamrodriguez/Desktop/Objects-of-Affection/end-session.sh)"
+    ]
+  },
   "hooks": {
     "WorktreeCreate": [
       {

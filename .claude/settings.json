@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "WorktreeCreate": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"continue\": false, \"stopReason\": \"Per project settings: always work directly on the main branch. Never create worktrees or new branches.\"}'"
+          }
+        ]
+      }
+    ]
+  }
+}

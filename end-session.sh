@@ -48,5 +48,8 @@ tell application "Google Chrome"
 end tell
 EOF
 
+echo "Closing VS Code..."
+osascript -e 'tell application "Visual Studio Code" to quit'
+
 echo "Closing Terminal..."
 osascript -e 'tell application "Terminal" to quit'

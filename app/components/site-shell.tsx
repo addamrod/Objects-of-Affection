@@ -8,11 +8,9 @@ export default function SiteShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const isAdmin = pathname.startsWith('/admin')
 
-  if (isAdmin) return <>{children}</>
-
   return (
     <>
-      <Nav />
+      {!isAdmin && <Nav />}
       <PageTransition>{children}</PageTransition>
     </>
   )

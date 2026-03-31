@@ -12,11 +12,16 @@ export const content = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'slug',
-      title: 'Slug',
-      type: 'slug',
-      options: { source: 'title' },
+      name: 'project',
+      title: 'Project',
+      type: 'reference',
+      to: [{ type: 'project' }],
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'order',
+      title: 'Order',
+      type: 'number',
     }),
     defineField({
       name: 'mediaType',

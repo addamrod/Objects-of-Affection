@@ -237,3 +237,18 @@ body {
   color: var(--color-primary-elements);
   font-family: var(--font-sans);
 }
+
+/* Animations */
+@keyframes pulse-opacity {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Hide scrollbar */
+::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  scrollbar-width: none;
+}

@@ -1,5 +1,18 @@
 import { client } from '@/sanity/lib/client'
 import { SectionIndexGrid, type ContentItem } from '@/app/components/index-grid'
+import { SectionHeroStatement } from '@/app/components/hero-statement'
+
+// Figma: divider
+function Divider() {
+  return (
+    <div
+      data-component="divider"
+      className="flex items-center justify-center px-[var(--spacing-s)] md:px-[var(--spacing-m)] w-full"
+    >
+      <div className="flex-1 h-[var(--stroke-m)] bg-[var(--color-light-grey)]" />
+    </div>
+  )
+}
 
 const query = `*[_type == "project"] | order(_createdAt asc) {
   _id,
@@ -20,15 +33,6 @@ const query = `*[_type == "project"] | order(_createdAt asc) {
   }
 }`
 
-// Figma: wrapper_index
-function WrapperIndex({ items }: { items: ContentItem[] }) {
-  return (
-    <div data-component="wrapper_index" className="pt-[74px] w-full">
-      <SectionIndexGrid items={items} />
-    </div>
-  )
-}
-
 // Figma: body_main
 export default async function BodyMain() {
   const projects = await client.fetch(query)
@@ -45,7 +49,12 @@ export default async function BodyMain() {
 
   return (
     <main data-component="body_main">
-      <WrapperIndex items={items} />
+      {/* Figma: wrapper_index — top padding offsets fixed nav */}
+      <div data-component="wrapper_index" className="pt-[59px] md:pt-[72px] w-full">
+        <SectionHeroStatement />
+        <Divider />
+        <SectionIndexGrid items={items} />
+      </div>
     </main>
   )
 }

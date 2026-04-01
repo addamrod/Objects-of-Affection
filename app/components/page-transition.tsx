@@ -9,6 +9,7 @@ export default function PageTransition({ children }: { children: React.ReactNode
   return (
     <motion.div
       key={pathname}
+      data-component="page-transition"
       className="flex flex-col flex-1"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}

@@ -65,7 +65,7 @@ function IndexGridSizeSelector({
 
   function snapPositions(): [number, number, number] {
     const w = trackRef.current?.offsetWidth ?? 0
-    const max = w - 10 // 10px = indicator size
+    const max = w - 15 // 15px = indicator size
     return [0, max / 2, max]
   }
 
@@ -88,10 +88,10 @@ function IndexGridSizeSelector({
   return (
     <div
       data-component="index-grid_size-selector"
-      className="flex gap-[var(--spacing-l,45px)] items-start justify-end shrink-0"
+      className="flex gap-[var(--spacing-m,30px)] items-start justify-end shrink-0"
     >
-      <span className="text-[12px] leading-none font-medium text-[var(--color-secondary-elements)] whitespace-nowrap">
-        Index Size
+      <span className="text-md md:text-lg leading-none font-medium text-[var(--color-primary-elements)] whitespace-nowrap">
+        Size
       </span>
       <div
         data-component="index-grid_size-slider"
@@ -99,7 +99,7 @@ function IndexGridSizeSelector({
       >
         <div
           data-component="index-grid_size-labels"
-          className="flex gap-[var(--spacing-l,45px)] items-center justify-center text-[12px] text-center whitespace-nowrap leading-none font-medium"
+          className="flex gap-[var(--spacing-l,45px)] items-center justify-center text-md md:text-lg text-center whitespace-nowrap leading-none font-medium"
         >
           {colValues.map((cols, i) => (
             <button
@@ -107,8 +107,8 @@ function IndexGridSizeSelector({
               onClick={() => onChange(cols)}
               className={`shrink-0 leading-none transition-colors md:cursor-pointer ${
                 i === activeIndex
-                  ? 'text-[var(--color-secondary-elements)]'
-                  : 'text-[var(--color-tertiary-elements,#a6a6a6)] md:hover:text-[var(--color-secondary-elements)]'
+                  ? 'text-[var(--color-primary-elements)]'
+                  : 'text-[var(--color-tertiary-elements)] md:hover:text-[var(--color-secondary-elements)]'
               }`}
             >
               {String(cols).padStart(2, '0')}
@@ -118,11 +118,11 @@ function IndexGridSizeSelector({
         <div
           ref={trackRef}
           data-component="index-grid_size-slider-track"
-          className="flex h-[10px] items-center justify-center relative shrink-0 w-full"
+          className="flex h-[15px] items-center justify-center relative shrink-0 w-full"
         >
           <div
             data-component="index-grid_size-line"
-            className="bg-[var(--color-secondary-elements)] flex-1 h-[1.5px] min-h-px min-w-px rounded-[var(--radius-xs,2.5px)]"
+            className="bg-[var(--color-tertiary-elements)] flex-1 h-[1.5px] min-h-px min-w-px rounded-[var(--radius-xs,2.5px)]"
           />
           <motion.div
             drag="x"
@@ -132,7 +132,7 @@ function IndexGridSizeSelector({
             style={{ x }}
             onDragEnd={handleDragEnd}
             data-component="index-grid_size-indicator"
-            className="absolute left-0 top-0 bg-[var(--color-secondary-elements)] size-[10px] rounded-[var(--radius-xs,2.5px)] cursor-grab active:cursor-grabbing"
+            className="absolute left-0 top-0 bg-[var(--color-tertiary-elements)] size-[15px] rounded-[var(--radius-s)] cursor-grab active:cursor-grabbing"
           />
         </div>
       </div>
@@ -195,17 +195,16 @@ function IndexItemTag({
   return (
     <div
       data-component="index-item_tag"
-      className="flex items-center gap-[var(--spacing-xs)] p-[var(--spacing-2xs)] rounded-[var(--radius-s)] bg-[var(--color-secondary-bg)] text-[var(--color-secondary-elements)] whitespace-nowrap shrink-0 leading-none text-[12px]"
+      className="flex items-center gap-[var(--spacing-s,15px)] p-[var(--spacing-2xs)] rounded-[var(--radius-s)] bg-[var(--color-secondary-bg)] whitespace-nowrap shrink-0 leading-none text-[12px]"
     >
       <div
         data-component="index-tag_details"
-        className="flex items-center gap-[var(--spacing-3xs,2.5px)] shrink-0"
+        className="flex items-center gap-[var(--spacing-2xs,5px)] shrink-0"
       >
-        <span>{clientName}</span>
-        <span>–</span>
-        <span>{projectName}</span>
+        <span className="font-medium text-[var(--color-secondary-elements)]">{clientName}</span>
+        <span className="text-[var(--color-tertiary-elements)]">{projectName}</span>
       </div>
-      <span>{indexSlug}</span>
+      <span className="text-[var(--color-tertiary-elements)]">{indexSlug}</span>
     </div>
   )
 }
@@ -234,15 +233,14 @@ function IndexItem({ item, showTag }: { item: ContentItem; showTag: boolean }) {
 
 // Figma: section_index-grid
 export function SectionIndexGrid({ items }: { items: ContentItem[] }) {
-  // Read on first render to avoid a hydration mismatch re-render on mobile
-  const [isMobile, setIsMobile] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches
-  )
+  const [isMobile, setIsMobile] = useState(false)
   const [desktopCols, setDesktopCols] = useState<DesktopCols>(5)
   const [mobileCols, setMobileCols] = useState<MobileCols>(1)
 
-  useEffect(() => {
+  // useLayoutEffect fires synchronously after hydration, before paint — no mismatch, no flash
+  useLayoutEffect(() => {
     const mql = window.matchMedia('(max-width: 767px)')
+    setIsMobile(mql.matches)
     const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
     mql.addEventListener('change', handler)
     return () => mql.removeEventListener('change', handler)
@@ -262,13 +260,17 @@ export function SectionIndexGrid({ items }: { items: ContentItem[] }) {
   return (
     <div
       data-component="section_index-grid"
-      className="px-[var(--spacing-s)] md:px-[var(--spacing-m)] py-[var(--spacing-m)] w-full flex flex-col gap-[var(--spacing-m)]"
+      className="px-[var(--spacing-s)] md:px-[var(--spacing-m)] py-[var(--spacing-m)] w-full flex flex-col gap-[var(--spacing-s)] md:gap-[var(--spacing-m)]"
     >
       {/* Figma: container_index-grid_size-selector */}
       <div
         data-component="container_index-grid_size-selector"
-        className="flex items-center justify-end w-full"
+        className="flex items-start justify-between self-stretch w-full"
       >
+        {/* Figma: index-grid_accent-text */}
+        <span className="text-md md:text-lg leading-none font-medium text-[var(--color-primary-elements)] whitespace-nowrap">
+          Project Index
+        </span>
         <IndexGridSizeSelector
           isMobile={isMobile}
           desktopCols={desktopCols}

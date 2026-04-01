@@ -1,10 +1,15 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import SiteShell from './components/site-shell'
 import './globals.css'
 
 export const metadata: Metadata = {
   title: 'Objects of Affection',
   description: 'Objects of Affection',
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
 }
 
 export default function RootLayout({

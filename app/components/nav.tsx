@@ -4,13 +4,11 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { forwardRef, useEffect, useRef, useState } from 'react'
 
+
 const NAV_LINKS = [
-  { href: '/projects', label: 'Projects' },
   { href: '/studio', label: 'Studio' },
   { href: '/', label: 'Index' },
 ]
-
-const MAIN_PATHS = ['/', '/studio', '/projects']
 
 // Figma: menu-link
 const MenuLink = forwardRef<
@@ -23,10 +21,10 @@ const MenuLink = forwardRef<
     data-component="menu-link"
     data-state={active ? 'active' : 'inactive'}
     className={[
-      'relative z-10 flex items-center justify-center px-[var(--spacing-s)] py-[var(--spacing-xs)] rounded-[var(--radius-m)] text-lg font-normal leading-none whitespace-nowrap transition-colors',
+      'relative z-10 flex items-center justify-center px-[var(--spacing-s)] py-[var(--spacing-xs)] rounded-[var(--radius-m)] text-lg leading-none whitespace-nowrap transition-colors',
       active
-        ? 'text-[var(--color-primary-elements)]'
-        : 'text-[var(--color-tertiary-elements)] hover:text-[var(--color-secondary-elements)]',
+        ? 'font-medium text-[var(--color-primary-elements)]'
+        : 'font-normal text-[var(--color-tertiary-elements)] hover:text-[var(--color-secondary-elements)]',
     ].join(' ')}
   >
     {label}
@@ -114,74 +112,25 @@ function ContainerSiteTitle() {
 }
 
 // Figma: wrapper_top-navigation
-function WrapperTopNavigation({ viewport }: { viewport: 'desktop' | 'mobile' }) {
+export default function Nav() {
   const pathname = usePathname()
 
   return (
     <header
       data-component="wrapper_top-navigation"
-      data-viewport={viewport}
-      className={[
-        'fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none',
-        viewport === 'desktop'
-          ? 'hidden md:flex px-[var(--spacing-m)] pt-[var(--spacing-m)]'
-          : 'flex md:hidden px-[var(--spacing-s)] pt-[var(--spacing-m)]',
-      ].join(' ')}
+      className="fixed top-0 left-0 right-0 z-50 flex pointer-events-none px-[var(--spacing-s)] md:px-[var(--spacing-m)] pt-[var(--spacing-m)] md:justify-center"
     >
+      {/*
+        Mobile:  flex-1 (full-width), justify-between (title left, menu right)
+        Desktop: flex-none (content-sized, centered), gap-l (title + menu side by side)
+      */}
       <div
         data-component="section_navigation"
-        className="flex items-center p-[var(--spacing-2xs)] rounded-[var(--radius-m)] backdrop-blur-[var(--blur-medium)] bg-[var(--color-transparent-bg)] pointer-events-auto"
+        className="flex-1 md:flex-none flex items-center justify-between md:justify-start md:gap-[var(--spacing-l)] p-[var(--spacing-2xs)] rounded-[var(--radius-m)] backdrop-blur-[var(--blur-medium)] bg-[var(--color-transparent-bg)] pointer-events-auto overflow-hidden"
       >
-        <div className={[
-          'flex items-center overflow-hidden rounded-[inherit]',
-          viewport === 'desktop' ? 'gap-[var(--spacing-l)]' : '',
-        ].join(' ')}>
-          <ContainerSiteTitle />
-          {viewport === 'desktop' && <ContainerSiteMenu pathname={pathname} />}
-        </div>
+        <ContainerSiteTitle />
+        <ContainerSiteMenu pathname={pathname} />
       </div>
     </header>
-  )
-}
-
-// Figma: wrapper_bottom-navigation
-function WrapperBottomNavigation() {
-  const pathname = usePathname()
-  const isMainPage = MAIN_PATHS.includes(pathname)
-
-  return (
-    <nav
-      data-component="wrapper_bottom-navigation"
-      data-viewport="mobile"
-      className="fixed bottom-0 left-0 right-0 z-50 md:hidden flex justify-center px-[var(--spacing-s)] pb-[var(--spacing-m)] pointer-events-none"
-    >
-      <div
-        data-component="section_navigation"
-        className="flex items-center p-[var(--spacing-2xs)] rounded-[var(--radius-m)] backdrop-blur-[var(--blur-medium)] bg-[var(--color-transparent-bg)] pointer-events-auto"
-      >
-        {isMainPage ? (
-          <ContainerSiteMenu pathname={pathname} />
-        ) : (
-          <Link
-            data-component="container_site-menu-trigger"
-            data-action="back"
-            href="/"
-            className="flex items-center justify-center px-[var(--spacing-s)] py-[var(--spacing-xs)] rounded-[var(--radius-m)] text-lg font-normal leading-none text-[var(--color-primary-elements)] whitespace-nowrap"
-          >
-            ← Back
-          </Link>
-        )}
-      </div>
-    </nav>
-  )
-}
-
-export default function Nav() {
-  return (
-    <>
-      <WrapperTopNavigation viewport="desktop" />
-      <WrapperTopNavigation viewport="mobile" />
-      <WrapperBottomNavigation />
-    </>
   )
 }

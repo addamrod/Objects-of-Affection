@@ -62,18 +62,31 @@ function IndexGridSizeSelector({
 
   const trackRef = useRef<HTMLDivElement>(null)
   const x = useMotionValue(0)
+  // Prevents useLayoutEffect from double-animating after a user-initiated interaction
+  const skipEffect = useRef(false)
 
   function snapPositions(): [number, number, number] {
-    const w = trackRef.current?.offsetWidth ?? 0
+    // getBoundingClientRect gives sub-pixel precision; offsetWidth rounds to integer
+    const w = trackRef.current?.getBoundingClientRect().width ?? 0
     const max = w - 15 // 15px = indicator size
     return [0, max / 2, max]
   }
 
-  // Animate indicator to the active position whenever selection or viewport changes
+  // Programmatic corrections (initial mount, isMobile change, resize) — always instant
   useLayoutEffect(() => {
-    const positions = snapPositions()
-    animate(x, positions[activeIndex], { duration: 0.25, ease: EASE })
+    if (skipEffect.current) {
+      skipEffect.current = false
+      return
+    }
+    animate(x, snapPositions()[activeIndex], { duration: 0 })
   }, [activeIndex, isMobile]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Re-snap on window resize so indicator stays aligned as track width changes
+  useEffect(() => {
+    const handleResize = () => animate(x, snapPositions()[activeIndex], { duration: 0 })
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [activeIndex]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleDragEnd() {
     const positions = snapPositions()
@@ -82,6 +95,7 @@ function IndexGridSizeSelector({
       Math.abs(current - pos) < Math.abs(current - positions[best]) ? i : best
     , 0)
     animate(x, positions[nearestIndex], { duration: 0.2, ease: EASE })
+    skipEffect.current = true
     onChange(colValues[nearestIndex])
   }
 
@@ -104,7 +118,12 @@ function IndexGridSizeSelector({
           {colValues.map((cols, i) => (
             <button
               key={cols}
-              onClick={() => onChange(cols)}
+              onClick={() => {
+                // Animate the indicator smoothly on user button clicks
+                animate(x, snapPositions()[i], { duration: 0.25, ease: EASE })
+                skipEffect.current = true
+                onChange(cols)
+              }}
               className={`shrink-0 leading-none transition-colors md:cursor-pointer ${
                 i === activeIndex
                   ? 'text-[var(--color-primary-elements)]'
@@ -236,6 +255,9 @@ export function SectionIndexGrid({ items }: { items: ContentItem[] }) {
   const [isMobile, setIsMobile] = useState(false)
   const [desktopCols, setDesktopCols] = useState<DesktopCols>(5)
   const [mobileCols, setMobileCols] = useState<MobileCols>(1)
+  // Until the user interacts, the grid is CSS-driven (always correct from first paint).
+  // After interaction, JS takes over with inline styles.
+  const [hasInteracted, setHasInteracted] = useState(false)
 
   // useLayoutEffect fires synchronously after hydration, before paint — no mismatch, no flash
   useLayoutEffect(() => {
@@ -253,6 +275,7 @@ export function SectionIndexGrid({ items }: { items: ContentItem[] }) {
   const gapY = isMobile && mobileCols > 1 ? '5px' : '30px'
 
   function handleChange(cols: DesktopCols | MobileCols) {
+    setHasInteracted(true)
     if (isMobile) setMobileCols(cols as MobileCols)
     else setDesktopCols(cols as DesktopCols)
   }
@@ -280,14 +303,19 @@ export function SectionIndexGrid({ items }: { items: ContentItem[] }) {
       </div>
 
       {/* Figma: container_index-grid */}
+      {/*
+        Before interaction: CSS handles columns + gaps — always correct from first paint,
+        no dependency on isMobile JS state (default: 1-col mobile, 5-col desktop).
+        After interaction: inline style takes over with the user's chosen columns.
+      */}
       <div
         data-component="container_index-grid"
-        style={{
-          display: 'grid',
+        className={!hasInteracted ? 'grid grid-cols-1 md:grid-cols-5 gap-x-[15px] md:gap-x-[5px] gap-y-[30px]' : 'grid'}
+        style={hasInteracted ? {
           gridTemplateColumns: `repeat(${activeCols}, minmax(0, 1fr))`,
           columnGap: gapX,
           rowGap: gapY,
-        }}
+        } : undefined}
       >
         {items.map((item) => (
           <IndexItem key={item._key} item={item} showTag={showTag} />

@@ -2,8 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { forwardRef, useEffect, useRef, useState } from 'react'
-
+import { type CSSProperties, forwardRef, useEffect, useRef, useState } from 'react'
 
 const NAV_LINKS = [
   { href: '/studio', label: 'Studio' },
@@ -36,6 +35,8 @@ MenuLink.displayName = 'MenuLink'
 function ContainerSiteMenu({ pathname }: { pathname: string }) {
   const linkRefs = useRef<(HTMLAnchorElement | null)[]>([])
   const [indicator, setIndicator] = useState({ x: 0, width: 0, ready: false, visible: false })
+  // Snap instantly on first load so the indicator is already in place when the nav fades in
+  const isInitialLoad = useRef(true)
 
   const updateIndicator = (animate: boolean) => {
     const activeIndex = NAV_LINKS.findIndex(({ href }) =>
@@ -49,9 +50,11 @@ function ContainerSiteMenu({ pathname }: { pathname: string }) {
     }
   }
 
-  // Animate on pathname change
+  // First load: snap instantly. Route changes: animate.
   useEffect(() => {
-    updateIndicator(true)
+    const shouldAnimate = !isInitialLoad.current
+    isInitialLoad.current = false
+    updateIndicator(shouldAnimate)
   }, [pathname])
 
   // Re-measure silently on resize (no animation)
@@ -111,13 +114,29 @@ function ContainerSiteTitle() {
   )
 }
 
+// True on every hard refresh (module re-evaluates). Stays false across route changes.
+let isFirstNavLoad = true
+
 // Figma: wrapper_top-navigation
 export default function Nav() {
   const pathname = usePathname()
+  const [navStyle, setNavStyle] = useState<CSSProperties>({ opacity: 0 })
+
+  // On hard refresh: fade in after the same delay as page-transition (100ms)
+  // On route changes: Nav never unmounts so this effect never re-runs — stays visible
+  useEffect(() => {
+    if (!isFirstNavLoad) return
+    isFirstNavLoad = false
+    const timer = setTimeout(() => {
+      setNavStyle({ opacity: 1, transition: 'opacity 0.3s ease-in-out' })
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [])
 
   return (
     <header
       data-component="wrapper_top-navigation"
+      style={navStyle}
       className="fixed top-0 left-0 right-0 z-50 flex pointer-events-none px-[var(--spacing-s)] md:px-[var(--spacing-m)] pt-[var(--spacing-m)] md:justify-center"
     >
       {/*

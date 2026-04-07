@@ -66,6 +66,7 @@
   --color-dim-grey: #a6a6a6;
   --color-grey: #808080;
   --color-dark-grey: #666666;
+  --color-deep-grey: #333333;
   --color-black: #000000;
 
   /* Transparent palette */
@@ -77,6 +78,10 @@
   --color-white-25: rgba(255, 255, 255, 0.25);
   --color-white-50: rgba(255, 255, 255, 0.5);
   --color-white-75: rgba(255, 255, 255, 0.75);
+  --color-light-grey-10: rgba(230, 230, 230, 0.1);
+  --color-light-grey-25: rgba(230, 230, 230, 0.25);
+  --color-light-grey-50: rgba(230, 230, 230, 0.5);
+  --color-light-grey-75: rgba(230, 230, 230, 0.75);
 
   /* Semantic tokens — Light Mode */
   --color-primary-elements: var(--color-black);
@@ -84,10 +89,11 @@
   --color-tertiary-elements: var(--color-dim-grey);
   --color-primary-bg: var(--color-soft-white);
   --color-secondary-bg: var(--color-cloud-white);
-  --color-transparent-bg: var(--color-black-10);
-  --color-transparent-hover-bg: var(--color-black-25);
+  --color-transparent-bg: var(--color-light-grey-50);
+  --color-transparent-hover-bg: var(--color-light-grey-75);
 
   /* Spacing */
+  --spacing-3xs: 2.5px;
   --spacing-2xs: 5px;
   --spacing-xs: 10px;
   --spacing-s: 15px;
@@ -98,6 +104,7 @@
   --spacing-3xl: 120px;
 
   /* Border radius */
+  --radius-xs: 2.5px;
   --radius-s: 5px;
   --radius-m: 10px;
   --radius-l: 20px;
@@ -129,7 +136,7 @@
     --color-secondary-elements: var(--color-white);
     --color-tertiary-elements: var(--color-white);
     --color-primary-bg: var(--color-black);
-    --color-secondary-bg: var(--color-dim-grey);
+    --color-secondary-bg: var(--color-deep-grey);
     --color-transparent-bg: var(--color-white-25);
     --color-transparent-hover-bg: var(--color-white-50);
   }
@@ -149,6 +156,7 @@
   --color-dim-grey: var(--color-dim-grey);
   --color-grey: var(--color-grey);
   --color-dark-grey: var(--color-dark-grey);
+  --color-deep-grey: var(--color-deep-grey);
   --color-black: var(--color-black);
 
   /* --- Transparent palette --- */
@@ -160,6 +168,10 @@
   --color-white-25: var(--color-white-25);
   --color-white-50: var(--color-white-50);
   --color-white-75: var(--color-white-75);
+  --color-light-grey-10: var(--color-light-grey-10);
+  --color-light-grey-25: var(--color-light-grey-25);
+  --color-light-grey-50: var(--color-light-grey-50);
+  --color-light-grey-75: var(--color-light-grey-75);
 
   /* --- Semantic tokens --- */
   --color-primary-elements: var(--color-primary-elements);
@@ -170,7 +182,8 @@
   --color-transparent-bg: var(--color-transparent-bg);
   --color-transparent-hover-bg: var(--color-transparent-hover-bg);
 
-  /* --- Spacing (generates p-2xs, m-s, gap-xl, etc.) --- */
+  /* --- Spacing (generates p-3xs, p-2xs, m-s, gap-xl, etc.) --- */
+  --spacing-3xs: var(--spacing-3xs);
   --spacing-2xs: var(--spacing-2xs);
   --spacing-xs: var(--spacing-xs);
   --spacing-s: var(--spacing-s);
@@ -180,7 +193,8 @@
   --spacing-2xl: var(--spacing-2xl);
   --spacing-3xl: var(--spacing-3xl);
 
-  /* --- Border radius (generates rounded-s, rounded-m, rounded-l) --- */
+  /* --- Border radius (generates rounded-xs, rounded-s, rounded-m, rounded-l) --- */
+  --radius-xs: var(--radius-xs);
   --radius-s: var(--radius-s);
   --radius-m: var(--radius-m);
   --radius-l: var(--radius-l);

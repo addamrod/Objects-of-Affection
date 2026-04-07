@@ -62,13 +62,12 @@ function IndexGridSizeSelector({
 
   const trackRef = useRef<HTMLDivElement>(null)
   const x = useMotionValue(0)
-  // Prevents useLayoutEffect from double-animating after a user-initiated interaction
   const skipEffect = useRef(false)
+  const isDragging = useRef(false)
 
   function snapPositions(): [number, number, number] {
-    // getBoundingClientRect gives sub-pixel precision; offsetWidth rounds to integer
     const w = trackRef.current?.getBoundingClientRect().width ?? 0
-    const max = w - 15 // 15px = indicator size
+    const max = w - 10 // 10px = indicator size
     return [0, max / 2, max]
   }
 
@@ -78,6 +77,8 @@ function IndexGridSizeSelector({
       skipEffect.current = false
       return
     }
+    // Don't override position while user is actively dragging
+    if (isDragging.current) return
     animate(x, snapPositions()[activeIndex], { duration: 0 })
   }, [activeIndex, isMobile]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -88,7 +89,19 @@ function IndexGridSizeSelector({
     return () => window.removeEventListener('resize', handleResize)
   }, [activeIndex]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Live update grid while dragging — animates layout in real time
+  function handleDrag() {
+    const positions = snapPositions()
+    const current = x.get()
+    const nearestIndex = positions.reduce((best, pos, i) =>
+      Math.abs(current - pos) < Math.abs(current - positions[best]) ? i : best
+    , 0)
+    const newCols = colValues[nearestIndex]
+    if (newCols !== activeCols) onChange(newCols)
+  }
+
   function handleDragEnd() {
+    isDragging.current = false
     const positions = snapPositions()
     const current = x.get()
     const nearestIndex = positions.reduce((best, pos, i) =>
@@ -137,11 +150,11 @@ function IndexGridSizeSelector({
         <div
           ref={trackRef}
           data-component="index-grid_size-slider-track"
-          className="flex h-[15px] items-center justify-center relative shrink-0 w-full"
+          className="flex h-[10px] items-center justify-center relative shrink-0 w-full"
         >
           <div
             data-component="index-grid_size-line"
-            className="bg-[var(--color-tertiary-elements)] flex-1 h-[1.5px] min-h-px min-w-px rounded-[var(--radius-xs,2.5px)]"
+            className="bg-[var(--color-tertiary-elements)] flex-1 h-px min-w-px rounded-full"
           />
           <motion.div
             drag="x"
@@ -149,10 +162,15 @@ function IndexGridSizeSelector({
             dragElastic={0}
             dragMomentum={false}
             style={{ x }}
+            onDragStart={() => { isDragging.current = true }}
+            onDrag={handleDrag}
             onDragEnd={handleDragEnd}
             data-component="index-grid_size-indicator"
-            className="absolute left-0 top-0 bg-[var(--color-tertiary-elements)] size-[15px] rounded-[var(--radius-s)] cursor-grab active:cursor-grabbing"
-          />
+            className="absolute left-0 top-1/2 -translate-y-1/2 bg-[var(--color-primary-elements)] size-[10px] rounded-full cursor-grab active:cursor-grabbing touch-none"
+          >
+            {/* Invisible hit area expansion for easier touch grabbing */}
+            <div className="absolute -inset-x-[10px] -inset-y-[17px]" />
+          </motion.div>
         </div>
       </div>
     </div>

@@ -20,10 +20,10 @@ const MenuLink = forwardRef<
     data-component="menu-link"
     data-state={active ? 'active' : 'inactive'}
     className={[
-      'relative z-10 flex items-center justify-center px-[var(--spacing-s)] py-[var(--spacing-xs)] rounded-[var(--radius-m)] text-lg leading-none whitespace-nowrap transition-colors',
+      'relative z-10 flex items-center justify-center px-[var(--spacing-s)] py-[var(--spacing-xs)] rounded-[var(--radius-m)] text-lg leading-none whitespace-nowrap transition-colors font-medium',
       active
-        ? 'font-medium text-[var(--color-primary-elements)]'
-        : 'font-normal text-[var(--color-tertiary-elements)] hover:text-[var(--color-secondary-elements)]',
+        ? 'text-[var(--color-primary-elements)]'
+        : 'text-[var(--color-secondary-elements)] hover:text-[var(--color-primary-elements)]',
     ].join(' ')}
   >
     {label}
@@ -72,7 +72,7 @@ function ContainerSiteMenu({ pathname }: { pathname: string }) {
       {/* Figma: nav-indicator */}
       <div
         data-component="nav-indicator"
-        className="absolute top-0 bottom-0 rounded-[var(--radius-m)] bg-[var(--color-transparent-hover-bg)]"
+        className="absolute top-0 bottom-0 rounded-[var(--radius-m)] bg-[var(--color-primary-bg)]"
         style={{
           width: indicator.width,
           transform: `translateX(${indicator.x}px)`,
@@ -105,7 +105,7 @@ function ContainerSiteTitle() {
     <Link
       href="/"
       data-component="container_site-title"
-      className="flex items-center justify-center px-[var(--spacing-s)] py-[var(--spacing-xs)] rounded-[var(--radius-m)] transition-colors hover:bg-[var(--color-transparent-hover-bg)]"
+      className="flex items-center justify-center px-[var(--spacing-s)] py-[var(--spacing-xs)] rounded-[var(--radius-m)]"
     >
       <span className="text-lg font-bold leading-none text-[var(--color-primary-elements)] whitespace-nowrap">
         OBJECTS OF AFFECTION

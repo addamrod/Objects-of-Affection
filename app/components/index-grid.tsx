@@ -26,7 +26,7 @@ type MobileCols = 1 | 2 | 3
 
 const COLUMN_OPTIONS = {
   desktop: [5, 4, 3] as const,
-  mobile: [3, 2, 1] as const,
+  mobile: [1, 2, 3] as const,
 }
 
 const EASE: [number, number, number, number] = [0.4, 0, 0.2, 1]
@@ -89,17 +89,6 @@ function IndexGridSizeSelector({
     return () => window.removeEventListener('resize', handleResize)
   }, [activeIndex]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Live update grid while dragging — animates layout in real time
-  function handleDrag() {
-    const positions = snapPositions()
-    const current = x.get()
-    const nearestIndex = positions.reduce((best, pos, i) =>
-      Math.abs(current - pos) < Math.abs(current - positions[best]) ? i : best
-    , 0)
-    const newCols = colValues[nearestIndex]
-    if (newCols !== activeCols) onChange(newCols)
-  }
-
   function handleDragEnd() {
     isDragging.current = false
     const positions = snapPositions()
@@ -115,38 +104,15 @@ function IndexGridSizeSelector({
   return (
     <div
       data-component="index-grid_size-selector"
-      className="flex gap-[var(--spacing-m,30px)] items-start justify-end shrink-0"
+      className="flex gap-[var(--spacing-m,30px)] items-center justify-end shrink-0"
     >
       <span className="text-md md:text-lg leading-none font-medium text-[var(--color-primary-elements)] whitespace-nowrap">
         Size
       </span>
       <div
         data-component="index-grid_size-slider"
-        className="flex flex-col gap-[var(--spacing-xs)] items-start shrink-0"
+        className="flex flex-col items-start shrink-0 w-[144px]"
       >
-        <div
-          data-component="index-grid_size-labels"
-          className="flex gap-[var(--spacing-l,45px)] items-center justify-center text-md md:text-lg text-center whitespace-nowrap leading-none font-medium"
-        >
-          {colValues.map((cols, i) => (
-            <button
-              key={cols}
-              onClick={() => {
-                // Animate the indicator smoothly on user button clicks
-                animate(x, snapPositions()[i], { duration: 0.25, ease: EASE })
-                skipEffect.current = true
-                onChange(cols)
-              }}
-              className={`shrink-0 leading-none transition-colors md:cursor-pointer ${
-                i === activeIndex
-                  ? 'text-[var(--color-primary-elements)]'
-                  : 'text-[var(--color-tertiary-elements)] md:hover:text-[var(--color-secondary-elements)]'
-              }`}
-            >
-              {String(cols).padStart(2, '0')}
-            </button>
-          ))}
-        </div>
         <div
           ref={trackRef}
           data-component="index-grid_size-slider-track"
@@ -154,7 +120,7 @@ function IndexGridSizeSelector({
         >
           <div
             data-component="index-grid_size-line"
-            className="bg-[var(--color-tertiary-elements)] flex-1 h-px min-w-px rounded-full"
+            className="bg-[var(--color-primary-elements)] flex-1 h-[1.5px] min-w-px"
           />
           <motion.div
             drag="x"
@@ -163,13 +129,12 @@ function IndexGridSizeSelector({
             dragMomentum={false}
             style={{ x }}
             onDragStart={() => { isDragging.current = true }}
-            onDrag={handleDrag}
             onDragEnd={handleDragEnd}
             data-component="index-grid_size-indicator"
             className="absolute left-0 top-1/2 -translate-y-1/2 bg-[var(--color-primary-elements)] size-[10px] rounded-full cursor-grab active:cursor-grabbing touch-none"
           >
-            {/* Invisible hit area expansion for easier touch grabbing */}
-            <div className="absolute -inset-x-[10px] -inset-y-[17px]" />
+            {/* Invisible hit area for easier touch grabbing */}
+            <div className="absolute -inset-[20px]" />
           </motion.div>
         </div>
       </div>

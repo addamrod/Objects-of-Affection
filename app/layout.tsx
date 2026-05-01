@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { client } from '@/sanity/lib/client'
+import { SanityLive } from '@/sanity/lib/live'
 import { urlFor } from '@/sanity/lib/image'
 import SiteShell from './components/site-shell'
 import './globals.css'
@@ -85,6 +86,7 @@ export default async function RootLayout({
           />
         )}
         <SiteShell>{children}</SiteShell>
+        <SanityLive />
       </body>
     </html>
   )

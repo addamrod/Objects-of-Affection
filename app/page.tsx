@@ -1,4 +1,4 @@
-import { client } from '@/sanity/lib/client'
+import { sanityFetch } from '@/sanity/lib/live'
 import { SectionIndexGrid, type ContentItem } from '@/app/components/index-grid'
 import { SectionHeroStatement } from '@/app/components/hero-statement'
 
@@ -46,7 +46,7 @@ const query = `*[_type == "project"] | order(_createdAt asc) {
 
 // Figma: body_main
 export default async function BodyMain() {
-  const projects = await client.fetch(query)
+  const { data: projects } = await sanityFetch({ query })
 
   const items: ContentItem[] = projects.flatMap((project: any) =>
     (project.content || []).map((item: any, i: number) => ({

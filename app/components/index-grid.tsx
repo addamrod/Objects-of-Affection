@@ -268,7 +268,7 @@ export function SectionIndexGrid({ items }: { items: ContentItem[] }) {
   return (
     <div
       data-component="section_index-grid"
-      className="px-[var(--spacing-s)] md:px-[var(--spacing-m)] py-[var(--spacing-m)] w-full flex flex-col gap-[var(--spacing-m)]"
+      className="px-[var(--spacing-s)] md:px-[var(--spacing-m)] py-[var(--spacing-m)] w-full flex flex-col gap-[var(--spacing-m)] overflow-hidden"
     >
       {/* Figma: container_index-grid_size-selector */}
       <div

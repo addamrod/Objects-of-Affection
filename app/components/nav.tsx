@@ -137,7 +137,7 @@ export default function Nav() {
     <header
       data-component="wrapper_top-navigation"
       style={navStyle}
-      className="fixed top-0 left-0 right-0 z-50 flex pointer-events-none px-[var(--spacing-s)] md:px-[var(--spacing-m)] pt-[var(--spacing-m)] md:justify-center"
+      className="fixed top-0 left-0 right-0 z-50 flex pointer-events-none px-[var(--spacing-s)] md:px-[var(--spacing-m)] pt-[var(--spacing-m)]"
     >
       {/*
         Mobile:  flex-1 (full-width), justify-between (title left, menu right)

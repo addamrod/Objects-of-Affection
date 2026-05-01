@@ -13,6 +13,8 @@ export type ContentItem = {
   _key: string
   _type: 'photo' | 'video'
   image?: any
+  imageWidth?: number
+  imageHeight?: number
   file?: { asset?: { url?: string } }
   caption?: string
   clientName: string
@@ -25,7 +27,7 @@ type DesktopCols = 3 | 4 | 5
 type MobileCols = 1 | 2 | 3
 
 const COLUMN_OPTIONS = {
-  desktop: [5, 4, 3] as const,
+  desktop: [3, 4, 5] as const,
   mobile: [1, 2, 3] as const,
 }
 
@@ -106,7 +108,7 @@ function IndexGridSizeSelector({
       data-component="index-grid_size-selector"
       className="flex gap-[var(--spacing-m,30px)] items-center justify-end shrink-0"
     >
-      <span className="text-md md:text-lg leading-none font-medium text-[var(--color-primary-elements)] whitespace-nowrap">
+      <span className="text-lg leading-none font-medium text-[var(--color-primary-elements)] whitespace-nowrap">
         Size
       </span>
       <div
@@ -120,7 +122,7 @@ function IndexGridSizeSelector({
         >
           <div
             data-component="index-grid_size-line"
-            className="bg-[var(--color-primary-elements)] flex-1 h-[1.5px] min-w-px"
+            className="bg-[var(--color-primary-elements)] flex-1 h-[var(--stroke-m)] min-w-px"
           />
           <motion.div
             drag="x"
@@ -147,30 +149,29 @@ function IndexItemContentContainer({ item }: { item: ContentItem }) {
   return (
     <div
       data-component="index-item_content-container"
-      className="aspect-[3/4] w-full overflow-hidden rounded-[var(--radius-s)] bg-[var(--color-secondary-bg)] relative cursor-pointer"
+      className="w-full overflow-hidden rounded-[var(--radius-s)] bg-[var(--color-secondary-bg)] relative cursor-pointer"
     >
-      <div data-component="index-item_content" className="absolute inset-0">
-        {item._type === 'photo' && item.image && (
-          <Image
-            src={urlFor(item.image).url()}
-            alt={item.caption || item.projectName}
-            fill
-            sizes="(max-width: 768px) 100vw, 25vw"
-            quality={90}
-            className="object-cover"
-          />
-        )}
-        {item._type === 'video' && item.file?.asset?.url && (
-          <video
-            src={item.file.asset.url}
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        )}
-      </div>
+      {item._type === 'photo' && item.image && (
+        <Image
+          src={urlFor(item.image).url()}
+          alt={item.caption || item.projectName}
+          width={item.imageWidth ?? 800}
+          height={item.imageHeight ?? 1067}
+          sizes="(max-width: 768px) 100vw, 25vw"
+          quality={90}
+          className="w-full h-auto block"
+        />
+      )}
+      {item._type === 'video' && item.file?.asset?.url && (
+        <video
+          src={item.file.asset.url}
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-auto block"
+        />
+      )}
       <div
         data-component="index-content_expand"
         className="absolute top-[5px] right-[5px] size-[32.5px] opacity-0 group-hover:opacity-100 transition-opacity"
@@ -197,7 +198,7 @@ function IndexItemTag({
   return (
     <div
       data-component="index-item_tag"
-      className="flex items-center gap-[var(--spacing-s,15px)] p-[var(--spacing-2xs)] rounded-[var(--radius-s)] bg-[var(--color-secondary-bg)] whitespace-nowrap shrink-0 leading-none text-[12px]"
+      className="self-start flex items-center gap-[var(--spacing-s,15px)] p-[var(--spacing-2xs)] rounded-[var(--radius-s)] bg-[var(--color-secondary-bg)] whitespace-nowrap shrink-0 leading-none text-md"
     >
       <div
         data-component="index-tag_details"
@@ -219,9 +220,10 @@ function IndexItem({ item, showTag }: { item: ContentItem; showTag: boolean }) {
       transition={{ layout: { duration: 0.4, ease: EASE } }}
       data-component="index-item"
       href={`/projects/${item.projectSlug}#${item.indexSlug}`}
-      className="group flex flex-col gap-[var(--spacing-xs)] items-start"
+      className="group flex flex-col"
     >
       <IndexItemContentContainer item={item} />
+      {showTag && <div className="flex-1 min-h-[var(--spacing-xs)]" />}
       {showTag && (
         <IndexItemTag
           clientName={item.clientName}
@@ -236,7 +238,7 @@ function IndexItem({ item, showTag }: { item: ContentItem; showTag: boolean }) {
 // Figma: section_index-grid
 export function SectionIndexGrid({ items }: { items: ContentItem[] }) {
   const [isMobile, setIsMobile] = useState(false)
-  const [desktopCols, setDesktopCols] = useState<DesktopCols>(5)
+  const [desktopCols, setDesktopCols] = useState<DesktopCols>(3)
   const [mobileCols, setMobileCols] = useState<MobileCols>(1)
   // Until the user interacts, the grid is CSS-driven (always correct from first paint).
   // After interaction, JS takes over with inline styles.
@@ -266,7 +268,7 @@ export function SectionIndexGrid({ items }: { items: ContentItem[] }) {
   return (
     <div
       data-component="section_index-grid"
-      className="px-[var(--spacing-s)] md:px-[var(--spacing-m)] py-[var(--spacing-m)] w-full flex flex-col gap-[var(--spacing-s)] md:gap-[var(--spacing-m)]"
+      className="px-[var(--spacing-s)] md:px-[var(--spacing-m)] py-[var(--spacing-m)] w-full flex flex-col gap-[var(--spacing-m)]"
     >
       {/* Figma: container_index-grid_size-selector */}
       <div
@@ -274,8 +276,8 @@ export function SectionIndexGrid({ items }: { items: ContentItem[] }) {
         className="flex items-start justify-between self-stretch w-full"
       >
         {/* Figma: index-grid_accent-text */}
-        <span className="text-md md:text-lg leading-none font-medium text-[var(--color-primary-elements)] whitespace-nowrap">
-          Project Index
+        <span className="text-lg leading-none font-medium text-[var(--color-primary-elements)] whitespace-nowrap">
+          Project Index: {String(items.length).padStart(3, '0')}
         </span>
         <IndexGridSizeSelector
           isMobile={isMobile}
@@ -293,7 +295,7 @@ export function SectionIndexGrid({ items }: { items: ContentItem[] }) {
       */}
       <div
         data-component="container_index-grid"
-        className={!hasInteracted ? 'grid grid-cols-1 md:grid-cols-5 gap-x-[15px] md:gap-x-[5px] gap-y-[30px]' : 'grid'}
+        className={!hasInteracted ? 'grid grid-cols-1 md:grid-cols-3 gap-x-[15px] md:gap-x-[5px] gap-y-[30px]' : 'grid'}
         style={hasInteracted ? {
           gridTemplateColumns: `repeat(${activeCols}, minmax(0, 1fr))`,
           columnGap: gapX,

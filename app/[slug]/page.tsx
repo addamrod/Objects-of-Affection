@@ -1,50 +1,82 @@
-import Image from 'next/image'
-import Link from 'next/link'
-import { client } from '@/sanity/lib/client'
-import { urlFor } from '@/sanity/lib/image'
+import { sanityFetch } from '@/sanity/lib/live'
+import { SliceZone, type Slice } from '@/app/components/slice-zone'
+import type { ContentItem } from '@/app/components/index-grid'
 
-const query = `*[_type == "content"] | order(_createdAt asc) {
+const pageQuery = `*[_type == "page" && slug.current == $slug][0] {
+  slices[] {
+    _type,
+    _key,
+    heroText,
+    showAvailability,
+  }
+}`
+
+const projectsQuery = `*[_type == "project"] | order(_createdAt asc) {
   _id,
   title,
   slug,
-  image
+  clientName,
+  projectName,
+  content[] {
+    _key,
+    _type,
+    image {
+      ...,
+      asset-> {
+        _id,
+        metadata {
+          dimensions {
+            width,
+            height
+          }
+        }
+      }
+    },
+    caption,
+    file {
+      asset-> {
+        url
+      }
+    }
+  }
 }`
 
-export default async function ContentPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function SlugPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const items = await client.fetch(query)
-  const currentIndex = items.findIndex((item: any) => item.slug.current === slug)
-  const item = items[currentIndex]
-  const prev = items[currentIndex - 1] ?? items[items.length - 1]
-  const next = items[currentIndex + 1] ?? items[0]
 
-  if (!item) return <div>Not found</div>
+  const [{ data: pageData }, { data: projects }] = await Promise.all([
+    sanityFetch({ query: pageQuery, params: { slug } }),
+    sanityFetch({ query: projectsQuery }),
+  ])
+
+  // No page document found for this slug
+  if (!pageData) {
+    return (
+      <main className="pt-[59px] md:pt-[72px] flex items-center justify-center min-h-screen">
+        <p className="text-[var(--color-tertiary-elements)] text-lg">Page not found.</p>
+      </main>
+    )
+  }
+
+  const items: ContentItem[] = (projects ?? []).flatMap((project: any) =>
+    (project.content || []).map((item: any, i: number) => ({
+      ...item,
+      imageWidth: item.image?.asset?.metadata?.dimensions?.width,
+      imageHeight: item.image?.asset?.metadata?.dimensions?.height,
+      clientName: project.clientName || '',
+      projectName: project.projectName || project.title,
+      projectSlug: project.slug?.current,
+      indexSlug: String(i + 1).padStart(2, '0'),
+    }))
+  )
+
+  const slices: Slice[] = pageData.slices ?? []
 
   return (
-    <main className="fixed inset-0 bg-black flex items-center justify-center">
-      <Link href="/" className="absolute top-6 left-6 text-white text-sm z-10">
-        ← Index
-      </Link>
-      {item.image && (
-        <Image
-          src={urlFor(item.image).width(1800).url()}
-          alt={item.title}
-          fill
-          className="object-contain"
-        />
-      )}
-      <Link
-        href={`/${prev.slug.current}`}
-        className="absolute left-6 top-1/2 -translate-y-1/2 text-white text-3xl z-10"
-      >
-        ‹
-      </Link>
-      <Link
-        href={`/${next.slug.current}`}
-        className="absolute right-6 top-1/2 -translate-y-1/2 text-white text-3xl z-10"
-      >
-        ›
-      </Link>
+    <main data-component="body_main">
+      <div data-component="wrapper_page" className="pt-[59px] md:pt-[72px] w-full flex flex-col items-start">
+        <SliceZone slices={slices} items={items} />
+      </div>
     </main>
   )
 }

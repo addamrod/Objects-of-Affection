@@ -1,14 +1,25 @@
+import type { Metadata } from 'next'
+import { client } from '@/sanity/lib/client'
 import { sanityFetch } from '@/sanity/lib/live'
+import { urlFor } from '@/sanity/lib/image'
 import { SliceZone, type Slice } from '@/app/components/slice-zone'
 import type { ContentItem } from '@/app/components/index-grid'
 
 const pageQuery = `*[_type == "page" && slug.current == $slug][0] {
+  title,
+  seo { title, description, ogImage },
   slices[] {
     _type,
     _key,
     heroText,
     showAvailability,
   }
+}`
+
+const siteSettingsQuery = `*[_type == "siteSettings"][0] {
+  siteTitle,
+  siteDescription,
+  ogImage,
 }`
 
 const projectsQuery = `*[_type == "project"] | order(_createdAt asc) {
@@ -25,21 +36,49 @@ const projectsQuery = `*[_type == "project"] | order(_createdAt asc) {
       asset-> {
         _id,
         metadata {
-          dimensions {
-            width,
-            height
-          }
+          dimensions { width, height }
         }
       }
     },
     caption,
-    file {
-      asset-> {
-        url
-      }
-    }
+    file { asset-> { url } }
   }
 }`
+
+export async function generateMetadata(
+  { params }: { params: Promise<{ slug: string }> }
+): Promise<Metadata> {
+  const { slug } = await params
+
+  const [pageData, settings] = await Promise.all([
+    client.fetch(pageQuery, { slug }),
+    client.fetch(siteSettingsQuery),
+  ])
+
+  const title       = pageData?.seo?.title       || pageData?.title || settings?.siteTitle       || 'Objects of Affection'
+  const description = pageData?.seo?.description || settings?.siteDescription
+  const ogImageUrl  = pageData?.seo?.ogImage
+    ? urlFor(pageData.seo.ogImage).width(1200).height(630).url()
+    : settings?.ogImage
+      ? urlFor(settings.ogImage).width(1200).height(630).url()
+      : undefined
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      ...(ogImageUrl && { images: [{ url: ogImageUrl, width: 1200, height: 630 }] }),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      ...(ogImageUrl && { images: [ogImageUrl] }),
+    },
+  }
+}
 
 export default async function SlugPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
@@ -49,7 +88,6 @@ export default async function SlugPage({ params }: { params: Promise<{ slug: str
     sanityFetch({ query: projectsQuery }),
   ])
 
-  // No page document found for this slug
   if (!pageData) {
     return (
       <main className="pt-[59px] md:pt-[72px] flex items-center justify-center min-h-screen">
@@ -61,12 +99,12 @@ export default async function SlugPage({ params }: { params: Promise<{ slug: str
   const items: ContentItem[] = (projects ?? []).flatMap((project: any) =>
     (project.content || []).map((item: any, i: number) => ({
       ...item,
-      imageWidth: item.image?.asset?.metadata?.dimensions?.width,
+      imageWidth:  item.image?.asset?.metadata?.dimensions?.width,
       imageHeight: item.image?.asset?.metadata?.dimensions?.height,
-      clientName: project.clientName || '',
+      clientName:  project.clientName || '',
       projectName: project.projectName || project.title,
       projectSlug: project.slug?.current,
-      indexSlug: String(i + 1).padStart(2, '0'),
+      indexSlug:   String(i + 1).padStart(2, '0'),
     }))
   )
 

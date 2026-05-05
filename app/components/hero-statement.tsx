@@ -1,6 +1,6 @@
 // Figma: section_hero-statement
 
-const HERO_TEXT =
+const DEFAULT_HERO_TEXT =
   'Objects of Affection (OOA) is a creative studio focused on elevating the online product experience. We partner with brands and agencies to create visuals that resonate across every channel.'
 
 // Figma: container_new-work (node 2509)
@@ -36,7 +36,13 @@ function ContainerNewWork() {
 }
 
 // Figma: section_hero-statement (Desktop + Mobile via responsive classes)
-export function SectionHeroStatement() {
+export function SectionHeroStatement({
+  heroText = DEFAULT_HERO_TEXT,
+  showAvailability = true,
+}: {
+  heroText?: string
+  showAvailability?: boolean
+} = {}) {
   return (
     <section
       data-component="section_hero-statement"
@@ -49,14 +55,14 @@ export function SectionHeroStatement() {
       >
         {/*
           Desktop: Headings/H3 Medium — 32px, weight 500, line-height 1.1
-          Mobile:  Headings/H6 Medium — 18px, weight 500, line-height 1.1
+          Mobile:  Headings/H5 Medium — 22px, weight 500, line-height 1.1
         */}
         <p className="flex-1 text-h5 md:text-h3 font-medium leading-[1.1] text-[var(--color-primary-elements)]">
-          {HERO_TEXT}
+          {heroText}
         </p>
       </div>
 
-      <ContainerNewWork />
+      {showAvailability && <ContainerNewWork />}
     </section>
   )
 }

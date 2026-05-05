@@ -14,5 +14,7 @@ export const structure: StructureResolver = (S) =>
             .documentId('siteSettings')
         ),
       S.divider(),
+      S.documentTypeListItem('page').title('Pages'),
+      S.divider(),
       S.documentTypeListItem('project').title('Projects'),
     ])

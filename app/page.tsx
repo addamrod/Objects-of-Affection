@@ -1,20 +1,17 @@
 import { sanityFetch } from '@/sanity/lib/live'
-import { SectionIndexGrid, type ContentItem } from '@/app/components/index-grid'
-import { SectionHeroStatement } from '@/app/components/hero-statement'
+import { SliceZone, type Slice } from '@/app/components/slice-zone'
+import type { ContentItem } from '@/app/components/index-grid'
 
-// Figma: divider
-function Divider() {
-  return (
-    <div
-      data-component="divider"
-      className="flex items-center justify-center px-[var(--spacing-s)] md:px-[var(--spacing-m)] w-full"
-    >
-      <div className="flex-1 h-[var(--stroke-m)] bg-[var(--color-light-grey)]" />
-    </div>
-  )
-}
+const pageQuery = `*[_type == "page" && slug.current == "index"][0] {
+  slices[] {
+    _type,
+    _key,
+    heroText,
+    showAvailability,
+  }
+}`
 
-const query = `*[_type == "project"] | order(_createdAt asc) {
+const projectsQuery = `*[_type == "project"] | order(_createdAt asc) {
   _id,
   title,
   slug,
@@ -44,11 +41,21 @@ const query = `*[_type == "project"] | order(_createdAt asc) {
   }
 }`
 
+// Fallback layout used until a Page document is created in Sanity
+const FALLBACK_SLICES: Slice[] = [
+  { _type: 'slice_heroStatement', _key: 'hero-fallback' },
+  { _type: 'slice_divider',       _key: 'divider-fallback' },
+  { _type: 'slice_indexGrid',     _key: 'grid-fallback' },
+]
+
 // Figma: body_main
 export default async function BodyMain() {
-  const { data: projects } = await sanityFetch({ query })
+  const [{ data: pageData }, { data: projects }] = await Promise.all([
+    sanityFetch({ query: pageQuery }),
+    sanityFetch({ query: projectsQuery }),
+  ])
 
-  const items: ContentItem[] = projects.flatMap((project: any) =>
+  const items: ContentItem[] = (projects ?? []).flatMap((project: any) =>
     (project.content || []).map((item: any, i: number) => ({
       ...item,
       imageWidth: item.image?.asset?.metadata?.dimensions?.width,
@@ -60,13 +67,13 @@ export default async function BodyMain() {
     }))
   )
 
+  const slices: Slice[] = pageData?.slices ?? FALLBACK_SLICES
+
   return (
     <main data-component="body_main">
       {/* Figma: wrapper_index — top padding offsets fixed nav */}
       <div data-component="wrapper_index" className="pt-[59px] md:pt-[72px] w-full flex flex-col items-start">
-        <SectionHeroStatement />
-        <Divider />
-        <SectionIndexGrid items={items} />
+        <SliceZone slices={slices} items={items} />
       </div>
     </main>
   )

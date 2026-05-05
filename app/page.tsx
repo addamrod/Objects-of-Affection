@@ -12,7 +12,10 @@ const homepageQuery = `*[_type == "page" && isHomepage == true][0] {
     _type,
     _key,
     heroText,
-    showAvailability,
+    button { type, text, link, gap },
+    heroTextWidth,
+    desktop { textSize, textWidth, paddingTop, paddingBottom },
+    mobile { textSize, paddingTop, paddingBottom },
   }
 }`
 
@@ -98,7 +101,7 @@ export default async function BodyMain() {
       clientName:  project.clientName || '',
       projectName: project.projectName || project.title,
       projectSlug: project.slug?.current,
-      indexSlug:   String(i + 1).padStart(2, '0'),
+      indexSlug:   String(i + 1).padStart(3, '0'),
     }))
   )
 

@@ -182,13 +182,8 @@ function IndexItemContentContainer({ item }: { item: ContentItem }) {
   )
 }
 
-// Figma: index-item_tag
-// Tag visibility rules:
-//   Desktop (any cols) or mobile 1-col → full "Client – Project  #" at 12px
-//   Mobile 2–3 cols → hidden
+// Figma: index-item_tag (node 2020-91)
 function IndexItemTag({
-  clientName,
-  projectName,
   indexSlug,
 }: {
   clientName: string
@@ -198,16 +193,11 @@ function IndexItemTag({
   return (
     <div
       data-component="index-item_tag"
-      className="self-start flex items-center gap-[var(--spacing-s,15px)] p-[var(--spacing-2xs)] rounded-[var(--radius-s)] bg-[var(--color-secondary-bg)] whitespace-nowrap shrink-0 leading-none text-md"
+      className="self-start flex items-center p-[var(--spacing-2xs)] rounded-[var(--radius-s)] bg-[var(--color-secondary-bg)] shrink-0"
     >
-      <div
-        data-component="index-tag_details"
-        className="flex items-center gap-[var(--spacing-2xs,5px)] shrink-0"
-      >
-        <span className="font-medium text-[var(--color-secondary-elements)]">{clientName}</span>
-        <span className="text-[var(--color-tertiary-elements)]">{projectName}</span>
-      </div>
-      <span className="text-[var(--color-tertiary-elements)]">{indexSlug}</span>
+      <span className="font-mono text-accent-sm text-[var(--color-secondary-elements)] whitespace-nowrap">
+        OOA–{indexSlug}
+      </span>
     </div>
   )
 }
@@ -219,7 +209,7 @@ function IndexItem({ item, showTag }: { item: ContentItem; showTag: boolean }) {
       layout
       transition={{ layout: { duration: 0.4, ease: EASE } }}
       data-component="index-item"
-      href={`/projects/${item.projectSlug}#${item.indexSlug}`}
+      href={`/project-index/${item.projectSlug}#${item.indexSlug}`}
       className="group flex flex-col"
     >
       <IndexItemContentContainer item={item} />

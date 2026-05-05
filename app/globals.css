@@ -1,54 +1,44 @@
 @import "tailwindcss";
 
 /* ============================================================
-   FONTS — ABC Diatype (self-hosted)
+   FONTS — ABC Diatype Plus Variable (self-hosted)
+   Single file covers Thin–Bold, Normal/Italic, Proportional/Semi-Mono/Mono
+   MONO axis: 0 = proportional, 0.5 = semi-mono, 1 = full mono
    ============================================================ */
 
 @font-face {
   font-family: "ABC Diatype";
-  src: url("/fonts/ABC Diatype Regular.ttf") format("truetype");
-  font-weight: 400;
+  src: url("/fonts/ABC Diatype Plus Variable.ttf") format("truetype");
+  font-weight: 100 700;
   font-style: normal;
+  font-variation-settings: "MONO" 0;
   font-display: swap;
 }
 
 @font-face {
   font-family: "ABC Diatype";
-  src: url("/fonts/ABC Diatype Regular Italic.ttf") format("truetype");
-  font-weight: 400;
+  src: url("/fonts/ABC Diatype Plus Variable.ttf") format("truetype");
+  font-weight: 100 700;
   font-style: italic;
+  font-variation-settings: "MONO" 0;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "ABC Diatype";
-  src: url("/fonts/ABC Diatype Medium.ttf") format("truetype");
-  font-weight: 500;
+  font-family: "ABC Diatype Mono";
+  src: url("/fonts/ABC Diatype Plus Variable.ttf") format("truetype");
+  font-weight: 100 700;
   font-style: normal;
+  font-variation-settings: "MONO" 1;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "ABC Diatype";
-  src: url("/fonts/ABC Diatype Medium Italic.ttf") format("truetype");
-  font-weight: 500;
+  font-family: "ABC Diatype Mono";
+  src: url("/fonts/ABC Diatype Plus Variable.ttf") format("truetype");
+  font-weight: 100 700;
   font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "ABC Diatype";
-  src: url("/fonts/ABC Diatype Bold.ttf") format("truetype");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "ABC Diatype";
-  src: url("/fonts/ABC Diatype Bold Italic.ttf") format("truetype");
-  font-weight: 700;
-  font-style: italic;
+  font-variation-settings: "MONO" 1;
   font-display: swap;
 }
 
@@ -127,6 +117,7 @@
 
   /* Typography */
   --font-sans: "ABC Diatype", sans-serif;
+  --font-mono: "ABC Diatype Mono", monospace;
 }
 
 /* Semantic tokens — Dark Mode */
@@ -201,6 +192,7 @@
 
   /* --- Font family --- */
   --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 
   /* --- Line heights (generates leading-heading, leading-paragraph, leading-ui) --- */
   --leading-heading: 1.1;
@@ -244,6 +236,18 @@
   --text-md--line-height: 1;
   --text-sm: 10px;
   --text-sm--line-height: 1;
+
+  /* --- Accents: ABC Diatype Mono, 100% line-height ---
+       Usage: text-accent-md / text-accent-sm + font-mono (weight: font-normal) */
+  --text-accent-lg: 14px;
+  --text-accent-lg--line-height: 1;
+  --text-accent-lg--font-weight: 500;
+  --text-accent-md: 12px;
+  --text-accent-md--line-height: 1;
+  --text-accent-md--font-weight: 500;
+  --text-accent-sm: 10px;
+  --text-accent-sm--line-height: 1;
+  --text-accent-sm--font-weight: 500;
 }
 
 body {

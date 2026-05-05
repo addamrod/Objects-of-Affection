@@ -19,6 +19,17 @@ export const project = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'seo',
+      title: 'SEO',
+      type: 'object',
+      description: 'Overrides site-wide settings. Leave blank to inherit from Site Settings.',
+      fields: [
+        defineField({ name: 'title', title: 'Page Title', type: 'string' }),
+        defineField({ name: 'description', title: 'Description', type: 'text', rows: 3 }),
+        defineField({ name: 'ogImage', title: 'OG Image', type: 'image' }),
+      ],
+    }),
+    defineField({
       name: 'clientName',
       title: 'Client Name',
       type: 'string',

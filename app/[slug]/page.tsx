@@ -5,6 +5,8 @@ import { urlFor } from '@/sanity/lib/image'
 import { SliceZone, type Slice } from '@/app/components/slice-zone'
 import type { ContentItem } from '@/app/components/index-grid'
 
+export const dynamic = 'force-dynamic'
+
 const pageQuery = `*[_type == "page" && slug.current == $slug][0] {
   title,
   seo { title, description, ogImage },
@@ -12,7 +14,10 @@ const pageQuery = `*[_type == "page" && slug.current == $slug][0] {
     _type,
     _key,
     heroText,
-    showAvailability,
+    button { type, text, link, gap },
+    heroTextWidth,
+    desktop { textSize, textWidth, paddingTop, paddingBottom },
+    mobile { textSize, paddingTop, paddingBottom },
   }
 }`
 
@@ -104,7 +109,7 @@ export default async function SlugPage({ params }: { params: Promise<{ slug: str
       clientName:  project.clientName || '',
       projectName: project.projectName || project.title,
       projectSlug: project.slug?.current,
-      indexSlug:   String(i + 1).padStart(2, '0'),
+      indexSlug:   String(i + 1).padStart(3, '0'),
     }))
   )
 

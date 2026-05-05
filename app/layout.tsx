@@ -7,14 +7,9 @@ import './globals.css'
 
 const siteSettingsQuery = `*[_type == "siteSettings"][0] {
   siteTitle,
-  titleTemplate,
   siteDescription,
   ogImage,
-  keywords,
-  organizationName,
-  siteUrl,
-  logo,
-  socialLinks,
+  favicon { asset-> { url } },
 }`
 
 export const viewport: Viewport = {
@@ -37,12 +32,9 @@ export async function generateMetadata(): Promise<Metadata> {
     : undefined
 
   return {
-    title: {
-      default: s.siteTitle ?? 'Objects of Affection',
-      template: s.titleTemplate ?? `%s | ${s.siteTitle ?? 'Objects of Affection'}`,
-    },
+    title: s.siteTitle ?? 'Objects of Affection',
     description: s.siteDescription,
-    keywords: s.keywords,
+    ...(s.favicon?.asset?.url && { icons: { icon: s.favicon.asset.url } }),
     openGraph: {
       title: s.siteTitle,
       description: s.siteDescription,
@@ -62,29 +54,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const s = await client.fetch(siteSettingsQuery)
-
-  const jsonLd = s
-    ? {
-        '@context': 'https://schema.org',
-        '@type': 'Organization',
-        name: s.organizationName ?? s.siteTitle,
-        url: s.siteUrl,
-        description: s.siteDescription,
-        ...(s.logo && { logo: urlFor(s.logo).url() }),
-        ...(s.socialLinks?.length && { sameAs: s.socialLinks }),
-      }
-    : null
-
   return (
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
-        {jsonLd && (
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-          />
-        )}
         <SiteShell>{children}</SiteShell>
         <SanityLive />
       </body>

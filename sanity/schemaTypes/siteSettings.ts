@@ -5,19 +5,12 @@ export const siteSettings = defineType({
   title: 'Site Settings',
   type: 'document',
   fields: [
-    // ── SEO ──────────────────────────────────────────────────────────────
     defineField({
       name: 'siteTitle',
       title: 'Site Title',
       type: 'string',
-      description: 'Default <title> tag across all pages.',
+      description: 'Default title tag across all pages.',
       validation: (Rule) => Rule.required(),
-    }),
-    defineField({
-      name: 'titleTemplate',
-      title: 'Title Template',
-      type: 'string',
-      description: 'Template for inner page titles. Use %s for the page name — e.g. "%s | Objects of Affection".',
     }),
     defineField({
       name: 'siteDescription',
@@ -35,51 +28,10 @@ export const siteSettings = defineType({
       options: { hotspot: true },
     }),
     defineField({
-      name: 'keywords',
-      title: 'Keywords',
-      type: 'array',
-      of: [{ type: 'string' }],
-      options: { layout: 'tags' },
-    }),
-
-    // ── Pages ─────────────────────────────────────────────────────────────
-    defineField({
-      name: 'studioSeo',
-      title: 'Studio Page',
-      type: 'object',
-      description: 'SEO overrides for the /studio page. Falls back to global defaults if left empty.',
-      fields: [
-        defineField({ name: 'title', title: 'Title', type: 'string' }),
-        defineField({ name: 'description', title: 'Description', type: 'text', rows: 3, validation: (Rule) => Rule.max(160) }),
-        defineField({ name: 'ogImage', title: 'OG Image', type: 'image', options: { hotspot: true } }),
-      ],
-    }),
-
-    // ── AEO / Structured Data ─────────────────────────────────────────────
-    defineField({
-      name: 'organizationName',
-      title: 'Organization Name',
-      type: 'string',
-      description: 'Used in schema.org Organization structured data.',
-    }),
-    defineField({
-      name: 'siteUrl',
-      title: 'Site URL',
-      type: 'url',
-      description: 'Canonical URL of the site — e.g. https://objectsofaffection.com.',
-    }),
-    defineField({
-      name: 'logo',
-      title: 'Logo',
+      name: 'favicon',
+      title: 'Favicon',
       type: 'image',
-      description: 'Used in schema.org Organization structured data.',
-    }),
-    defineField({
-      name: 'socialLinks',
-      title: 'Social Links',
-      type: 'array',
-      of: [{ type: 'url' }],
-      description: 'Social profile URLs (Instagram, LinkedIn, etc.) used in schema.org sameAs.',
+      description: 'Browser tab icon. Recommended size: 32 × 32px or 64 × 64px. PNG or ICO.',
     }),
   ],
   preview: {

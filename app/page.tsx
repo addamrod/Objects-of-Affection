@@ -38,9 +38,7 @@ const projectsQuery = `*[_type == "project"] | order(_createdAt asc) {
       ...,
       asset-> {
         _id,
-        metadata {
-          dimensions { width, height }
-        }
+        "lqip": metadata.lqip
       }
     },
     caption,
@@ -93,15 +91,16 @@ export default async function BodyMain() {
     sanityFetch({ query: projectsQuery }),
   ])
 
+  let globalIndex = 0
   const items: ContentItem[] = (projects ?? []).flatMap((project: any) =>
     (project.content || []).map((item: any, i: number) => ({
       ...item,
-      imageWidth:  item.image?.asset?.metadata?.dimensions?.width,
-      imageHeight: item.image?.asset?.metadata?.dimensions?.height,
       clientName:  project.clientName || '',
       projectName: project.projectName || project.title,
       projectSlug: project.slug?.current,
-      indexSlug:   String(i + 1).padStart(3, '0'),
+      indexSlug:    String(++globalIndex).padStart(3, '0'),
+      itemIndex:    i + 1,
+      blurDataURL:  item.image?.asset?.lqip,
     }))
   )
 

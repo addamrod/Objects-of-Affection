@@ -2,8 +2,8 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useLayoutEffect, useRef, useState, useEffect } from 'react'
-import { animate, motion, useMotionValue } from 'framer-motion'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { animate, motion, useAnimate, useInView, useMotionValue } from 'framer-motion'
 import { urlFor } from '@/sanity/lib/image'
 
 // motion-enhanced Link for layout animations
@@ -13,14 +13,14 @@ export type ContentItem = {
   _key: string
   _type: 'photo' | 'video'
   image?: any
-  imageWidth?: number
-  imageHeight?: number
   file?: { asset?: { url?: string } }
   caption?: string
   clientName: string
   projectName: string
   projectSlug: string
-  indexSlug: string
+  indexSlug: string    // global position across all index items — used for OOA–001 tag
+  itemIndex: number    // position within the project — used for carousel URL hash
+  blurDataURL?: string // Sanity lqip — tiny base64 placeholder for instant blur preview
 }
 
 type DesktopCols = 3 | 4 | 5
@@ -144,32 +144,82 @@ function IndexGridSizeSelector({
   )
 }
 
+// Computes an accurate sizes hint based on actual column count and viewport
+// Desktop padding: 30px each side. Mobile padding: 15px each side. Gap: 5px between cols.
+function buildSizes(isMobile: boolean, cols: number): string {
+  if (isMobile) {
+    if (cols === 1) return 'calc(100vw - 30px)'
+    return `calc((100vw - 30px - ${(cols - 1) * 5}px) / ${cols})`
+  }
+  return `calc((100vw - 60px - ${(cols - 1) * 5}px) / ${cols})`
+}
+
 // Figma: index-item_content-container
-function IndexItemContentContainer({ item }: { item: ContentItem }) {
+function IndexItemContentContainer({ item, transitionDone, isMobile, cols }: { item: ContentItem; transitionDone: boolean; isMobile: boolean; cols: number }) {
+  const [photoScope, animatePhoto] = useAnimate()
+  const [videoScope, animateVideo] = useAnimate()
+  const isPhotoInView = useInView(photoScope, { once: true, margin: '0px 0px -10% 0px' })
+  const isVideoInView = useInView(videoScope, { once: true, margin: '0px 0px -10% 0px' })
+
+  // Track if item was already in view before the page transition completed (initial load)
+  const photoInViewBeforeTransition = useRef(false)
+  const videoInViewBeforeTransition = useRef(false)
+
+  useEffect(() => {
+    if (isPhotoInView && !transitionDone) photoInViewBeforeTransition.current = true
+  }, [isPhotoInView, transitionDone])
+
+  useEffect(() => {
+    if (isVideoInView && !transitionDone) videoInViewBeforeTransition.current = true
+  }, [isVideoInView, transitionDone])
+
+  useEffect(() => {
+    if (isPhotoInView && transitionDone && photoScope.current) {
+      const delay = photoInViewBeforeTransition.current ? 0.25 : 0
+      animatePhoto(photoScope.current, { filter: 'blur(0px)', scale: 1 }, { duration: 0.5, ease: EASE, delay })
+    }
+  }, [isPhotoInView, transitionDone]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (isVideoInView && transitionDone && videoScope.current) {
+      const delay = videoInViewBeforeTransition.current ? 0.25 : 0
+      animateVideo(videoScope.current, { filter: 'blur(0px)', scale: 1 }, { duration: 0.5, ease: EASE, delay })
+    }
+  }, [isVideoInView, transitionDone]) // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <div
       data-component="index-item_content-container"
-      className="w-full overflow-hidden rounded-[var(--radius-s)] bg-[var(--color-secondary-bg)] relative cursor-pointer"
+      className="w-full aspect-[2/3] overflow-hidden rounded-[var(--radius-s)] bg-[var(--color-secondary-bg)] relative cursor-pointer"
     >
       {item._type === 'photo' && item.image && (
-        <Image
-          src={urlFor(item.image).url()}
-          alt={item.caption || item.projectName}
-          width={item.imageWidth ?? 800}
-          height={item.imageHeight ?? 1067}
-          sizes="(max-width: 768px) 100vw, 25vw"
-          quality={90}
-          className="w-full h-auto block"
-        />
+        <motion.div
+          ref={photoScope}
+          className="absolute inset-0"
+          initial={{ filter: 'blur(40px)', scale: 1.2 }}
+        >
+          <Image
+            src={urlFor(item.image).url()}
+            alt={item.caption || item.projectName}
+            fill
+            sizes={buildSizes(isMobile, cols)}
+            quality={90}
+            className="object-cover"
+            placeholder={item.blurDataURL ? 'blur' : 'empty'}
+            blurDataURL={item.blurDataURL}
+          />
+        </motion.div>
       )}
       {item._type === 'video' && item.file?.asset?.url && (
-        <video
+        <motion.video
+          ref={videoScope}
           src={item.file.asset.url}
           autoPlay
           loop
           muted
           playsInline
-          className="w-full h-auto block"
+          className="absolute inset-0 w-full h-full object-cover"
+          initial={{ filter: 'blur(40px)', scale: 1.2 }}
         />
       )}
       <div
@@ -203,17 +253,17 @@ function IndexItemTag({
 }
 
 // Figma: index-item
-function IndexItem({ item, showTag }: { item: ContentItem; showTag: boolean }) {
+function IndexItem({ item, showTag, transitionDone, isMobile, cols }: { item: ContentItem; showTag: boolean; transitionDone: boolean; isMobile: boolean; cols: number }) {
   return (
     <MotionLink
       layout
       transition={{ layout: { duration: 0.4, ease: EASE } }}
       data-component="index-item"
-      href={`/project-index/${item.projectSlug}#${item.indexSlug}`}
+      href={`/project-index/${item.projectSlug}#${item.itemIndex}`}
       className="group flex flex-col"
     >
-      <IndexItemContentContainer item={item} />
-      {showTag && <div className="flex-1 min-h-[var(--spacing-xs)]" />}
+      <IndexItemContentContainer item={item} transitionDone={transitionDone} isMobile={isMobile} cols={cols} />
+      {showTag && <div className="flex-1 min-h-[var(--spacing-2xs)]" />}
       {showTag && (
         <IndexItemTag
           clientName={item.clientName}
@@ -233,6 +283,14 @@ export function SectionIndexGrid({ items }: { items: ContentItem[] }) {
   // Until the user interacts, the grid is CSS-driven (always correct from first paint).
   // After interaction, JS takes over with inline styles.
   const [hasInteracted, setHasInteracted] = useState(false)
+  // Waits for the page transition to actually complete before allowing blur reveals
+  const [transitionDone, setTransitionDone] = useState(false)
+
+  useEffect(() => {
+    const handler = () => setTransitionDone(true)
+    window.addEventListener('page-transition-complete', handler)
+    return () => window.removeEventListener('page-transition-complete', handler)
+  }, [])
 
   // useLayoutEffect fires synchronously after hydration, before paint — no mismatch, no flash
   useLayoutEffect(() => {
@@ -247,7 +305,7 @@ export function SectionIndexGrid({ items }: { items: ContentItem[] }) {
   const showTag = !isMobile || mobileCols === 1
 
   const gapX = isMobile && mobileCols === 1 ? '15px' : '5px'
-  const gapY = isMobile && mobileCols > 1 ? '5px' : '30px'
+  const gapY = isMobile ? (mobileCols > 1 ? '5px' : '30px') : '15px'
 
   function handleChange(cols: DesktopCols | MobileCols) {
     setHasInteracted(true)
@@ -285,7 +343,7 @@ export function SectionIndexGrid({ items }: { items: ContentItem[] }) {
       */}
       <div
         data-component="container_index-grid"
-        className={!hasInteracted ? 'grid grid-cols-1 md:grid-cols-3 gap-x-[15px] md:gap-x-[5px] gap-y-[30px]' : 'grid'}
+        className={!hasInteracted ? 'grid grid-cols-1 md:grid-cols-3 gap-x-[15px] md:gap-x-[5px] gap-y-[30px] md:gap-y-[15px]' : 'grid'}
         style={hasInteracted ? {
           gridTemplateColumns: `repeat(${activeCols}, minmax(0, 1fr))`,
           columnGap: gapX,
@@ -293,7 +351,7 @@ export function SectionIndexGrid({ items }: { items: ContentItem[] }) {
         } : undefined}
       >
         {items.map((item) => (
-          <IndexItem key={item._key} item={item} showTag={showTag} />
+          <IndexItem key={item._key} item={item} showTag={showTag} transitionDone={transitionDone} isMobile={isMobile} cols={activeCols} />
         ))}
       </div>
     </div>

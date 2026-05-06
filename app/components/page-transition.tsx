@@ -23,7 +23,8 @@ export default function PageTransition({ children }: { children: React.ReactNode
       className="flex flex-col flex-1"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.3, ease: 'easeInOut', delay }}
+      transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1], delay }}
+      onAnimationComplete={() => window.dispatchEvent(new Event('page-transition-complete'))}
     >
       {children}
     </motion.div>

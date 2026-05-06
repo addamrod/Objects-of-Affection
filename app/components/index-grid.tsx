@@ -305,7 +305,7 @@ export function SectionIndexGrid({ items }: { items: ContentItem[] }) {
   const showTag = !isMobile || mobileCols === 1
 
   const gapX = isMobile && mobileCols === 1 ? '15px' : '5px'
-  const gapY = isMobile ? (mobileCols > 1 ? '5px' : '30px') : '15px'
+  const gapY = isMobile ? (mobileCols > 1 ? '5px' : '15px') : '15px'
 
   function handleChange(cols: DesktopCols | MobileCols) {
     setHasInteracted(true)
@@ -343,7 +343,7 @@ export function SectionIndexGrid({ items }: { items: ContentItem[] }) {
       */}
       <div
         data-component="container_index-grid"
-        className={!hasInteracted ? 'grid grid-cols-1 md:grid-cols-3 gap-x-[15px] md:gap-x-[5px] gap-y-[30px] md:gap-y-[15px]' : 'grid'}
+        className={!hasInteracted ? 'grid grid-cols-1 md:grid-cols-3 gap-x-[15px] md:gap-x-[5px] gap-y-[15px]' : 'grid'}
         style={hasInteracted ? {
           gridTemplateColumns: `repeat(${activeCols}, minmax(0, 1fr))`,
           columnGap: gapX,
